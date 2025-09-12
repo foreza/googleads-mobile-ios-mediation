@@ -22,13 +22,7 @@ jobs:
 
         # TODO: Verify xCode version to use.
         # Available Xcode versions:
-        # https://github.com/actions/runner-images/blob/main/images/macos/toolsets/toolset-14.json
-
-      - name: Change to Mediation Sample Directory
-        run: |
-          
-          ls & echo "Moved to samples directory"
-          
+        # https://github.com/actions/runner-images/blob/main/images/macos/toolsets/toolset-14.json          
       - name: Select Xcode version
         run: |
           sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
@@ -47,7 +41,6 @@ jobs:
       - name: Build Mediation Project Scheme
         run: |
           cd ./example
-          xcodebuild clean build analyze \
-          -scheme "MediationSample" \
-          -workspace "MediationSample.xcworkspace" -sdk iphonesimulator -arch x86_64 \
-          | xcpretty && exit ${PIPESTATUS[0]}
+          ls
+          echo "Let us BUILD!"
+          xcodebuild clean build analyze -workspace MediationSample.xcworkspace -scheme "MediationSample" -sdk iphonesimulator -arch x86_64 | xcpretty && exit ${PIPESTATUS[0]}
