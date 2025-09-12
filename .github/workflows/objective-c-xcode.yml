@@ -26,7 +26,7 @@ jobs:
 
       - name: Change to Mediation Sample Directory
         run: |
-          cd ./example
+          
           ls & echo "Moved to samples directory"
           
       - name: Select Xcode version
@@ -35,17 +35,18 @@ jobs:
           echo "Selected Xcode version:"
           /usr/bin/xcodebuild -version
     
-      - name: Update & Install Pods
+      - name: Update & Install Pods for Mediation Example
         run: |
+          cd ./example
           pod repo update
           pod install
-        
 
       - name: Install xcpretty
         run: sudo gem install xcpretty
         
       - name: Build Mediation Project Scheme
         run: |
+          cd ./example
           xcodebuild clean build analyze \
           -scheme "MediationSample" \
           -workspace "MediationSample.xcworkspace" -sdk iphonesimulator -arch x86_64 \
