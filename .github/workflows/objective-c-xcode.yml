@@ -1,32 +1,52 @@
-name: Xcode - Build and Analyze
+name: Build mediation example project
 
+# Step 1: Build on pull-requests or pushes to main
 on:
+  # Remove after testing
   workflow_dispatch:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
+# Step 2: Build mediation sample
 jobs:
   build:
-    name: Build and analyse default scheme using xcodebuild command
+    name: Build 
     runs-on: macos-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set Default Scheme
+      - name: Clone Repo
+        # TODO: our samples use v1, is there a difference? (probably just ancient)
+        uses: actions/checkout@v4 
+
+        # TODO: Verify xCode version to use.
+        # Available Xcode versions:
+        # https://github.com/actions/runner-images/blob/main/images/macos/toolsets/toolset-14.json
+
+      - name: Change to Mediation Sample Directory
         run: |
-          cd example/
-          scheme_list=$(xcodebuild -list -json | tr -d "\n")
-          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
-          echo $default | cat >default
-          echo Using default scheme: $default
-      - name: Build
-        env:
-          scheme: ${{ 'default' }}
+          cd /example
+          ls & echo "Moved to samples directory"
+          
+      - name: Select Xcode version
         run: |
-          if [ $scheme = default ]; then scheme=$(cat default); fi
-          if [ "`ls -A | grep -i \\.xcworkspace\$`" ]; then filetype_parameter="workspace" && file_to_build="`ls -A | grep -i \\.xcworkspace\$`"; else filetype_parameter="project" && file_to_build="`ls -A | grep -i \\.xcodeproj\$`"; fi
-          file_to_build=`echo $file_to_build | awk '{$1=$1;print}'`
-          xcodebuild clean build analyze -scheme "$scheme" -"$filetype_parameter" "$file_to_build" | xcpretty && exit ${PIPESTATUS[0]}
+          sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+          echo "Selected Xcode version:"
+          /usr/bin/xcodebuild -version
+    
+      - name: Update & Install Pods
+        run: |
+          pod repo update
+          pod install
+        
+
+      - name: Install xcpretty
+        run: sudo gem install xcpretty
+        
+      - name: Build Mediation Project Scheme
+        run: |
+          xcodebuild clean build analyze \
+          -scheme "MediationSample" \
+          -workspace "MediationSample.xcworkspace" -sdk iphonesimulator -arch x86_64 \
+          | xcpretty && exit ${PIPESTATUS[0]}
