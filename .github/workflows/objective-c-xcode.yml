@@ -38,9 +38,9 @@ jobs:
       - name: Install xcpretty
         run: sudo gem install xcpretty
         
-      - name: Build Mediation Project Scheme
+      - name: Build Mediation MediationExample Project Scheme
         run: |
           cd ./example
           ls
           echo "Let us BUILD!"
-          xcodebuild clean build analyze -workspace MediationSample.xcworkspace -scheme "MediationSample" -sdk iphonesimulator -arch x86_64 | xcpretty && exit ${PIPESTATUS[0]}
+          xcodebuild clean build analyze -workspace MediationExample.xcworkspace -scheme "MediationExample" -sdk iphonesimulator -arch x86_64 | xcpretty && exit ${PIPESTATUS[0]}
