@@ -1,0 +1,47 @@
+name: Build mediation example project
+
+# Step 1: Build on pull-requests or pushes to main
+on:
+  # Remove after testing
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# Step 2: Build mediation sample
+jobs:
+  build:
+    name: Build 
+    runs-on: macos-latest
+
+    steps:
+      - name: Clone Repo
+        # TODO: our samples use v1, is there a difference? (probably just ancient)
+        uses: actions/checkout@v4 
+
+        # TODO: Verify xCode version to use.
+        # Available Xcode versions:
+        # https://github.com/actions/runner-images/blob/main/images/macos/toolsets/toolset-14.json          
+      - name: Select Xcode version
+        run: |
+          sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+          echo "Selected Xcode version:"
+          /usr/bin/xcodebuild -version
+    
+      - name: Update & Install Pods for Mediation Example
+        run: |
+          cd ./example
+          export BUILD_SNIPPETS=1
+          pod repo update
+          pod install
+
+      - name: Install xcpretty
+        run: sudo gem install xcpretty
+        
+      - name: Build Mediation MediationExample Project Scheme
+        run: |
+          cd ./example
+          ls
+          echo "Let us BUILD!"
+          xcodebuild clean build analyze -workspace MediationExample.xcworkspace -scheme "MediationExample" -sdk iphonesimulator -arch x86_64 | xcpretty && exit ${PIPESTATUS[0]}
