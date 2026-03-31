@@ -14,4 +14,8 @@ target 'SampleAdSDK' do
     end
 
   end
+
+  if ENV['BUILD_SNIPPETS']
+    pod 'GoogleMobileAdsMediationAppLovin'
+  end
 end
